@@ -225,6 +225,98 @@
       h1 { font-size: 1.9rem; }
     }
 
+  
+    .xmr-panel {
+      margin: 1.35rem 0 0;
+      padding: 1rem 1.1rem 1.05rem;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .xmr-panel .top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.55rem 1rem;
+      margin-bottom: 0.85rem;
+    }
+    .xmr-panel .pair {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mute);
+    }
+    .xmr-panel .price {
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .xmr-panel .chg {
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.22rem 0.5rem;
+      border-radius: 6px;
+    }
+    .xmr-panel .chg.up { color: #0a7a3e; background: #e6f6ec; }
+    .xmr-panel .chg.down { color: #b42318; background: #fdecea; }
+    .xmr-panel .chart-wrap {
+      width: 100%;
+      height: 72px;
+      margin: 0 0 0.85rem;
+    }
+    .xmr-panel .chart-wrap canvas {
+      width: 100% !important;
+      height: 72px !important;
+      display: block;
+    }
+    .xmr-panel .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem 1rem;
+    }
+    @media (min-width: 520px) {
+      .xmr-panel .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    .xmr-panel .stat {
+      min-width: 0;
+    }
+    .xmr-panel .stat .lbl {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mute);
+      margin-bottom: 0.2rem;
+    }
+    .xmr-panel .stat .val {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+    .xmr-panel .foot {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.85rem;
+      padding-top: 0.7rem;
+      border-top: 1px solid var(--line);
+      font-size: 0.72rem;
+      color: var(--mute);
+    }
+    .xmr-panel .foot a {
+      color: var(--orange);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .xmr-panel .foot a:hover { text-decoration: underline; }
+
   </style>
 </head>
 <body>
@@ -246,6 +338,32 @@
       <p>MoneroTalks is a discussion board for Monero and financial privacy. It is the opposite of the old Bitcoin forum: no trust peerage, no secret court, no clique that outranks the post.</p>
       <p>Speech is presumed allowed. One law for old names and new ones. Threads instead of a feed.</p>
       <p>The board is <a href="https://forum.monerotalks.org" style="color:#ff6600;text-decoration:underline;">live</a>.</p>
+
+    <div class="xmr-panel" id="xmr-panel" aria-live="polite">
+      <div class="top">
+        <span class="pair">XMR / USD</span>
+        <span class="price" id="xmr-price">—</span>
+        <span class="chg" id="xmr-chg-24">—</span>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="xmr-chart" width="640" height="72" aria-label="XMR 7-day price chart"></canvas>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="lbl">24h high</span><span class="val" id="xmr-high">—</span></div>
+        <div class="stat"><span class="lbl">24h low</span><span class="val" id="xmr-low">—</span></div>
+        <div class="stat"><span class="lbl">Market cap</span><span class="val" id="xmr-mcap">—</span></div>
+        <div class="stat"><span class="lbl">24h volume</span><span class="val" id="xmr-vol">—</span></div>
+        <div class="stat"><span class="lbl">7d change</span><span class="val" id="xmr-chg-7">—</span></div>
+        <div class="stat"><span class="lbl">30d change</span><span class="val" id="xmr-chg-30">—</span></div>
+        <div class="stat"><span class="lbl">Rank</span><span class="val" id="xmr-rank">—</span></div>
+        <div class="stat"><span class="lbl">Circ. supply</span><span class="val" id="xmr-supply">—</span></div>
+      </div>
+      <div class="foot">
+        <a href="https://forum.monerotalks.org">Open board ↗</a>
+      </div>
+    </div>
+
+
     </div>
     <section class="donate" id="donate">
       <h2>Donations</h2>
@@ -270,5 +388,116 @@
       <a class="law-btn" href="law.html">Forum law</a>
     </div>
   </footer>
+
+
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  if (!$('xmr-price')) return;
+
+  function money(n, digs) {
+    if (n == null || isNaN(n)) return '—';
+    digs = digs == null ? 2 : digs;
+    return n.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: digs, maximumFractionDigits: digs });
+  }
+  function compact(n) {
+    if (n == null || isNaN(n)) return '—';
+    return n.toLocaleString(undefined, { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 2 });
+  }
+  function pct(n) {
+    if (n == null || isNaN(n)) return '—';
+    var s = (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
+    return s;
+  }
+  function supply(n) {
+    if (n == null || isNaN(n)) return '—';
+    return (n / 1e6).toFixed(2) + 'M XMR';
+  }
+
+  function drawChart(points) {
+    var canvas = $('xmr-chart');
+    if (!canvas || !points || points.length < 2) return;
+    var dpr = window.devicePixelRatio || 1;
+    var cssW = canvas.clientWidth || 640;
+    var cssH = 72;
+    canvas.width = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+    var ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    var vals = points.map(function (p) { return p[1]; });
+    var min = Math.min.apply(null, vals);
+    var max = Math.max.apply(null, vals);
+    var pad = (max - min) * 0.08 || 1;
+    min -= pad; max += pad;
+    var up = vals[vals.length - 1] >= vals[0];
+    var stroke = up ? '#0a7a3e' : '#b42318';
+    var fill = up ? 'rgba(10,122,62,0.12)' : 'rgba(180,35,24,0.10)';
+
+    function xAt(i) { return (i / (vals.length - 1)) * cssW; }
+    function yAt(v) { return cssH - ((v - min) / (max - min)) * (cssH - 4) - 2; }
+
+    ctx.clearRect(0, 0, cssW, cssH);
+    ctx.beginPath();
+    ctx.moveTo(0, yAt(vals[0]));
+    for (var i = 1; i < vals.length; i++) ctx.lineTo(xAt(i), yAt(vals[i]));
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    ctx.lineTo(cssW, cssH);
+    ctx.lineTo(0, cssH);
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+  }
+
+  function load() {
+    var detail = fetch('https://api.coingecko.com/api/v3/coins/monero?localization=false&tickers=false&community_data=false&developer_data=false');
+    var chart = fetch('https://api.coingecko.com/api/v3/coins/monero/market_chart?vs_currency=usd&days=7');
+
+    Promise.all([detail, chart])
+      .then(function (res) {
+        return Promise.all(res.map(function (r) {
+          if (!r.ok) throw new Error('http');
+          return r.json();
+        }));
+      })
+      .then(function (pair) {
+        var d = pair[0];
+        var c = pair[1];
+        var m = d.market_data || {};
+        var price = m.current_price && m.current_price.usd;
+        var ch24 = m.price_change_percentage_24h;
+        $('xmr-price').textContent = money(price);
+        var chEl = $('xmr-chg-24');
+        chEl.textContent = pct(ch24) + ' 24h';
+        chEl.className = 'chg ' + (ch24 >= 0 ? 'up' : 'down');
+
+        $('xmr-high').textContent = money(m.high_24h && m.high_24h.usd);
+        $('xmr-low').textContent = money(m.low_24h && m.low_24h.usd);
+        $('xmr-mcap').textContent = compact(m.market_cap && m.market_cap.usd);
+        $('xmr-vol').textContent = compact(m.total_volume && m.total_volume.usd);
+        $('xmr-chg-7').textContent = pct(m.price_change_percentage_7d_in_currency && m.price_change_percentage_7d_in_currency.usd);
+        $('xmr-chg-30').textContent = pct(m.price_change_percentage_30d_in_currency && m.price_change_percentage_30d_in_currency.usd);
+        $('xmr-rank').textContent = d.market_cap_rank != null ? '#' + d.market_cap_rank : '—';
+        $('xmr-supply').textContent = supply(m.circulating_supply);
+
+        if (c.prices) drawChart(c.prices);
+      })
+      .catch(function () {
+      });
+  }
+
+  load();
+  setInterval(load, 120000);
+  window.addEventListener('resize', function () {
+    /* redraw on resize using last fetch would need cache; next interval is fine */
+  });
+})();
+</script>
+
 </body>
 </html>
