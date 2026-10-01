@@ -396,23 +396,27 @@
   var $ = function (id) { return document.getElementById(id); };
   if (!$('xmr-price')) return;
 
+  var CACHE_KEY = 'mt_xmr_cache_v1';
+  var REFRESH_MS = 5 * 60 * 1000; // 5 min — fewer rate limits
+  var RETRIES = 3;
+  var RETRY_DELAY = 1500;
+
   function money(n, digs) {
     if (n == null || isNaN(n)) return '—';
     digs = digs == null ? 2 : digs;
-    return n.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: digs, maximumFractionDigits: digs });
+    return Number(n).toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: digs, maximumFractionDigits: digs });
   }
   function compact(n) {
     if (n == null || isNaN(n)) return '—';
-    return n.toLocaleString(undefined, { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 2 });
+    return Number(n).toLocaleString(undefined, { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 2 });
   }
   function pct(n) {
     if (n == null || isNaN(n)) return '—';
-    var s = (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
-    return s;
+    return (n >= 0 ? '+' : '') + Number(n).toFixed(2) + '%';
   }
   function supply(n) {
     if (n == null || isNaN(n)) return '—';
-    return (n / 1e6).toFixed(2) + 'M XMR';
+    return (Number(n) / 1e6).toFixed(2) + 'M XMR';
   }
 
   function drawChart(points) {
@@ -424,7 +428,7 @@
     canvas.width = Math.floor(cssW * dpr);
     canvas.height = Math.floor(cssH * dpr);
     var ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     var vals = points.map(function (p) { return p[1]; });
     var min = Math.min.apply(null, vals);
@@ -446,7 +450,6 @@
     ctx.lineWidth = 2;
     ctx.lineJoin = 'round';
     ctx.stroke();
-
     ctx.lineTo(cssW, cssH);
     ctx.lineTo(0, cssH);
     ctx.closePath();
@@ -454,47 +457,115 @@
     ctx.fill();
   }
 
-  function load() {
-    var detail = fetch('https://api.coingecko.com/api/v3/coins/monero?localization=false&tickers=false&community_data=false&developer_data=false');
-    var chart = fetch('https://api.coingecko.com/api/v3/coins/monero/market_chart?vs_currency=usd&days=7');
+  function apply(data) {
+    if (!data) return;
+    var m = data.market || {};
+    $('xmr-price').textContent = money(m.price);
+    var chEl = $('xmr-chg-24');
+    chEl.textContent = pct(m.ch24) + ' 24h';
+    chEl.className = 'chg ' + ((m.ch24 == null || m.ch24 >= 0) ? 'up' : 'down');
+    $('xmr-high').textContent = money(m.high);
+    $('xmr-low').textContent = money(m.low);
+    $('xmr-mcap').textContent = compact(m.mcap);
+    $('xmr-vol').textContent = compact(m.vol);
+    $('xmr-chg-7').textContent = pct(m.ch7);
+    $('xmr-chg-30').textContent = pct(m.ch30);
+    $('xmr-rank').textContent = m.rank != null ? '#' + m.rank : '—';
+    $('xmr-supply').textContent = supply(m.supply);
+    if (data.prices && data.prices.length > 1) drawChart(data.prices);
+  }
 
-    Promise.all([detail, chart])
-      .then(function (res) {
-        return Promise.all(res.map(function (r) {
-          if (!r.ok) throw new Error('http');
-          return r.json();
-        }));
-      })
+  function saveCache(data) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), data: data })); } catch (e) {}
+  }
+  function loadCache() {
+    try {
+      var raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      return parsed && parsed.data ? parsed.data : null;
+    } catch (e) { return null; }
+  }
+
+  function sleep(ms) {
+    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+  }
+
+  function fetchJson(url) {
+    return fetch(url, { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.json();
+    });
+  }
+
+  function fetchWithRetry(url) {
+    var attempt = 0;
+    function run() {
+      return fetchJson(url).catch(function (err) {
+        attempt += 1;
+        if (attempt >= RETRIES) throw err;
+        return sleep(RETRY_DELAY * attempt).then(run);
+      });
+    }
+    return run();
+  }
+
+  function loadNetwork() {
+    var detailUrl = 'https://api.coingecko.com/api/v3/coins/monero?localization=false&tickers=false&community_data=false&developer_data=false';
+    var chartUrl = 'https://api.coingecko.com/api/v3/coins/monero/market_chart?vs_currency=usd&days=7';
+
+    return Promise.all([fetchWithRetry(detailUrl), fetchWithRetry(chartUrl)])
       .then(function (pair) {
         var d = pair[0];
         var c = pair[1];
-        var m = d.market_data || {};
-        var price = m.current_price && m.current_price.usd;
-        var ch24 = m.price_change_percentage_24h;
-        $('xmr-price').textContent = money(price);
-        var chEl = $('xmr-chg-24');
-        chEl.textContent = pct(ch24) + ' 24h';
-        chEl.className = 'chg ' + (ch24 >= 0 ? 'up' : 'down');
-
-        $('xmr-high').textContent = money(m.high_24h && m.high_24h.usd);
-        $('xmr-low').textContent = money(m.low_24h && m.low_24h.usd);
-        $('xmr-mcap').textContent = compact(m.market_cap && m.market_cap.usd);
-        $('xmr-vol').textContent = compact(m.total_volume && m.total_volume.usd);
-        $('xmr-chg-7').textContent = pct(m.price_change_percentage_7d_in_currency && m.price_change_percentage_7d_in_currency.usd);
-        $('xmr-chg-30').textContent = pct(m.price_change_percentage_30d_in_currency && m.price_change_percentage_30d_in_currency.usd);
-        $('xmr-rank').textContent = d.market_cap_rank != null ? '#' + d.market_cap_rank : '—';
-        $('xmr-supply').textContent = supply(m.circulating_supply);
-
-        if (c.prices) drawChart(c.prices);
-      })
-      .catch(function () {
+        var md = d.market_data || {};
+        var data = {
+          market: {
+            price: md.current_price && md.current_price.usd,
+            ch24: md.price_change_percentage_24h,
+            high: md.high_24h && md.high_24h.usd,
+            low: md.low_24h && md.low_24h.usd,
+            mcap: md.market_cap && md.market_cap.usd,
+            vol: md.total_volume && md.total_volume.usd,
+            ch7: md.price_change_percentage_7d_in_currency && md.price_change_percentage_7d_in_currency.usd,
+            ch30: md.price_change_percentage_30d_in_currency && md.price_change_percentage_30d_in_currency.usd,
+            rank: d.market_cap_rank,
+            supply: md.circulating_supply
+          },
+          prices: (c && c.prices) ? c.prices : []
+        };
+        // require at least a price to treat as success
+        if (data.market.price == null) throw new Error('no price');
+        saveCache(data);
+        apply(data);
+        return data;
       });
   }
 
-  load();
-  setInterval(load, 120000);
+  // 1) Show last good data immediately (no blank flash)
+  var cached = loadCache();
+  if (cached) apply(cached);
+
+  // 2) Refresh from network with retries
+  function tick() {
+    loadNetwork().catch(function () {
+      // keep whatever is already on screen (cache or previous)
+      if (!cached && !$('xmr-price').textContent.replace('—', '').trim()) {
+        $('xmr-price').textContent = '—';
+      }
+    });
+  }
+
+  tick();
+  setInterval(tick, REFRESH_MS);
+
+  var resizeTimer;
   window.addEventListener('resize', function () {
-    /* redraw on resize using last fetch would need cache; next interval is fine */
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var c = loadCache();
+      if (c && c.prices) drawChart(c.prices);
+    }, 150);
   });
 })();
 </script>
