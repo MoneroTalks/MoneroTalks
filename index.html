@@ -317,7 +317,16 @@
     }
     .xmr-panel .foot a:hover { text-decoration: underline; }
 
-  </style>
+  
+    a.mt-onion {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.82rem;
+      color: var(--mute);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+    }
+    a.mt-onion:hover { color: var(--orange); }
+</style>
   <meta property="og:site_name" content="MoneroTalks">
   <meta property="og:title" content="MoneroTalks">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MoneroTalks","alternateName":["MoneroTalks.org","monerotalks.org"],"url":"https://monerotalks.org/"}</script>
@@ -362,6 +371,7 @@
         <div class="stat"><span class="lbl">Circ. supply</span><span class="val" id="xmr-supply">—</span></div>
       </div>
       <div class="foot">
+        <a class="mt-onion" href="http://vqpjggq4qlapatmoppm5lffrswh7fegmsj6ws6f55rep7ni62yvucwad.onion/" rel="noreferrer">🧅 Use Tor</a>
         <a href="https://forum.monerotalks.org">Open board ↗</a>
       </div>
     </div>
@@ -388,7 +398,10 @@
   <footer>
     <div class="inner">
       <span>monerotalks.org — independent, unofficial, not affiliated with the Monero project or Monero Talk the podcast.</span>
-      <a class="law-btn" href="law.html">Forum law</a>
+      <span style="display:flex;gap:0.85rem;align-items:center;flex-wrap:wrap;">
+        <a class="mt-onion" href="http://vqpjggq4qlapatmoppm5lffrswh7fegmsj6ws6f55rep7ni62yvucwad.onion/" rel="noreferrer">🧅 Use Tor — onion mirror</a>
+        <a class="law-btn" href="law.html">Forum law</a>
+      </span>
     </div>
   </footer>
 
