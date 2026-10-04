@@ -299,7 +299,26 @@
       color: var(--ink);
       letter-spacing: -0.02em;
     }
-    .xmr-panel .foot {
+    .xmr-panel /* .foot rules moved below */
+    .xmr-panel .foot a {
+      color: var(--orange);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .xmr-panel .foot a:hover { text-decoration: underline; }
+
+  
+    
+    a.mt-onion {
+      font: inherit;
+      color: var(--orange);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    a.mt-onion:hover {
+      color: #cc5200;
+    }
+    .foot {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -310,40 +329,42 @@
       font-size: 0.72rem;
       color: var(--mute);
     }
-    .xmr-panel .foot a {
-      color: var(--orange);
-      font-weight: 700;
-      text-decoration: none;
-    }
-    .xmr-panel .foot a:hover { text-decoration: underline; }
-
-  
-    a.mt-onion {
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: inherit;
+    .foot a:not(.mt-onion) {
+      font: inherit;
       color: var(--mute);
       text-decoration: none;
-      letter-spacing: 0.01em;
-      white-space: nowrap;
     }
-    a.mt-onion:hover { color: var(--orange); }
-    .foot a { color: var(--mute); text-decoration: none; }
-    .foot a:hover { color: var(--orange); }
+    .foot a:not(.mt-onion):hover { color: var(--orange); }
+    footer .inner {
+      max-width: 42rem;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem 1.25rem;
+      flex-wrap: wrap;
+    }
+    footer .note {
+      flex: 1 1 16rem;
+      line-height: 1.45;
+      max-width: 26rem;
+    }
     footer .links {
       display: flex;
       align-items: center;
-      gap: 0.9rem;
+      gap: 1rem;
       flex-shrink: 0;
     }
-    footer .inner {
-      align-items: flex-start;
+    footer .links .mt-onion {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.72rem;
+      text-decoration: none;
     }
-    footer .note {
-      flex: 1 1 14rem;
-      line-height: 1.45;
-      max-width: 28rem;
+    footer .links .mt-onion:hover {
+      text-decoration: none;
     }
-</style>
+
+  </style>
   <meta property="og:site_name" content="MoneroTalks">
   <meta property="og:title" content="MoneroTalks">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MoneroTalks","alternateName":["MoneroTalks.org","monerotalks.org"],"url":"https://monerotalks.org/"}</script>
@@ -366,7 +387,7 @@
     <div class="lead">
       <p>MoneroTalks is a discussion board for Monero and financial privacy. It is the opposite of the old Bitcoin forum: no trust peerage, no secret court, no clique that outranks the post.</p>
       <p>Speech is presumed allowed. One law for old names and new ones. Threads instead of a feed.</p>
-      <p>The board is <a href="https://forum.monerotalks.org" style="color:#ff6600;text-decoration:underline;">live</a> — <a class="mt-onion" href="http://vqpjggq4qlapatmoppm5lffrswh7fegmsj6ws6f55rep7ni62yvucwad.onion/" rel="noreferrer" style="color:#ff6600;">🧅 Use Tor</a>.</p>
+      <p>The board is <a href="https://forum.monerotalks.org" style="color:#ff6600;text-decoration:underline;">live</a> — <a class="mt-onion" href="http://vqpjggq4qlapatmoppm5lffrswh7fegmsj6ws6f55rep7ni62yvucwad.onion/" rel="noreferrer">🧅 Use Tor</a>.</p>
 
     <div class="xmr-panel" id="xmr-panel" aria-live="polite">
       <div class="top">
@@ -414,7 +435,7 @@
   </main>
   <footer>
     <div class="inner">
-      <span class="note">monerotalks.org — independent, unofficial, not affiliated with the Monero project or Monero Talk the podcast.</span>
+      <span class="note">MoneroTalks.org — independent, not affiliated with the Monero project or Monero Talk the podcast.</span>
       <span class="links">
         <a class="mt-onion" href="http://vqpjggq4qlapatmoppm5lffrswh7fegmsj6ws6f55rep7ni62yvucwad.onion/" rel="noreferrer">🧅 Use Tor</a>
         <a class="law-btn" href="law.html">Forum law</a>
