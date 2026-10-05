@@ -127,10 +127,10 @@
       line-height: 1;
     }
     .nav-tor .onion-ico {
-      font-size: 0.95em;
+      font-size: 1em;
       line-height: 1;
-      position: relative;
-      top: 0.05em; /* optical center with text */
+      display: inline-block;
+      transform: translateY(0.08em);
     }
     .nav-tor:hover { color: #cc5200; }
     .identity {
@@ -396,6 +396,32 @@
       .nav-label,
       .nav-label + .nav-sep {
         display: none;
+      }
+      header .bar {
+        align-items: center;
+      }
+      .navs {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        line-height: 1;
+        /* optical: sit on same midline as logo + wordmark */
+        transform: translateY(1px);
+      }
+      .nav-https,
+      .nav-tor,
+      .nav-sep {
+        display: inline-flex;
+        align-items: center;
+        line-height: 1;
+        height: 1em;
+      }
+      .nav-tor .onion-ico {
+        display: inline-flex;
+        align-items: center;
+        transform: none;
+        position: relative;
+        top: 0.5px;
       }
       footer .law-btn,
       .law-btn {
