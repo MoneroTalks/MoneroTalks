@@ -72,7 +72,7 @@
       letter-spacing: -0.03em;
       margin-left: 1px;
     }
-    .navs{display:flex;gap:0.9rem;align-items:center}
+    /* .navs defined below */
     .forum-slot {
       background: var(--paper);
       padding: 0.65rem 1.5rem 0;
@@ -84,16 +84,55 @@
       padding-bottom: 0.2rem;
       border-bottom: 2px solid var(--orange);
     }
-    .nav {
+    .navs {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
       font-family: Arial, Helvetica, sans-serif;
       font-size: 0.68rem;
       font-weight: 700;
+      letter-spacing: 0.06em;
+      line-height: 1;
+    }
+    .nav-label {
+      color: var(--ink);
       letter-spacing: 0.16em;
       text-transform: uppercase;
+      line-height: 1;
+    }
+    .nav-sep {
+      color: var(--mute);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: none;
+      line-height: 1;
+    }
+    .nav-https {
+      color: var(--mute);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .nav-https:hover { color: var(--ink); }
+    .nav-tor {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
       color: var(--orange);
       text-decoration: none;
+      letter-spacing: 0.06em;
+      text-transform: none;
+      line-height: 1;
     }
-    .nav:hover { opacity: 0.75; }
+    .nav-tor .onion-ico {
+      font-size: 0.95em;
+      line-height: 1;
+      position: relative;
+      top: 0.05em; /* optical center with text */
+    }
+    .nav-tor:hover { color: #cc5200; }
     .identity {
       margin-bottom: 1.6rem;
     }
@@ -354,6 +393,10 @@
 
   
     @media (max-width: 700px) {
+      .nav-label,
+      .nav-label + .nav-sep {
+        display: none;
+      }
       footer .law-btn,
       .law-btn {
         flex-shrink: 0;
@@ -412,7 +455,11 @@
         <div class="wordmark">Monero<span>Talks</span><span class="tld">.org</span></div>
       </a>
       <div class="navs">
-        <a class="nav" href="https://forum.monerotalks.org">Forum</a>
+        <span class="nav-label">Forum</span>
+        <span class="nav-sep">—</span>
+        <a class="nav-https" href="https://forum.monerotalks.org">Clearnet</a>
+        <span class="nav-sep">or</span>
+        <a class="nav-tor" href="http://vqpjggq4qlapatmoppm5lffrswh7fegmsj6ws6f55rep7ni62yvucwad.onion/" rel="noreferrer">Tor <span class="onion-ico" aria-hidden="true">🧅</span></a>
       </div>
     </div>
   </header>
