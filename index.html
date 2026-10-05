@@ -201,13 +201,13 @@
       background: #fffcf7;
     }
     footer .inner {
-      max-width: 42rem;
+      max-width: 52rem;
       margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
     .law-btn {
       color: var(--orange);
@@ -345,9 +345,10 @@
       flex-wrap: wrap;
     }
     footer .note {
-      flex: 1 1 16rem;
-      line-height: 1.45;
-      max-width: 26rem;
+      flex: 1 1 auto;
+      white-space: nowrap;
+      line-height: 1.35;
+      min-width: 0;
     }
     footer .links {
       display: flex;
