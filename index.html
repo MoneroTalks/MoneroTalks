@@ -301,8 +301,8 @@
     }
     .xmr-panel /* .foot rules moved below */
     .xmr-panel .foot a {
-      color: var(--orange);
-      font-weight: 700;
+      color: var(--mute);
+      font-weight: normal;
       text-decoration: none;
     }
     .xmr-panel .foot a:hover { text-decoration: underline; }
@@ -364,6 +364,33 @@
       text-decoration: none;
     }
 
+  
+    /* Match Open board (grey) */
+    a.board-link {
+      color: var(--mute);
+      font-weight: normal;
+      text-decoration: none;
+    }
+    a.board-link .board-link-text {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    a.board-link:hover {
+      color: var(--orange);
+    }
+    a.board-link:hover .board-link-text {
+      text-decoration: underline;
+    }
+    a.mt-onion {
+      font: inherit;
+      color: var(--orange);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    a.mt-onion:hover {
+      color: #cc5200;
+    }
+
   </style>
   <meta property="og:site_name" content="MoneroTalks">
   <meta property="og:title" content="MoneroTalks">
@@ -387,7 +414,7 @@
     <div class="lead">
       <p>MoneroTalks is a discussion board for Monero and financial privacy. It is the opposite of the old Bitcoin forum: no trust peerage, no secret court, no clique that outranks the post.</p>
       <p>Speech is presumed allowed. One law for old names and new ones. Threads instead of a feed.</p>
-      <p>The board is <a href="https://forum.monerotalks.org" style="color:#ff6600;text-decoration:underline;">live</a> — <a class="mt-onion" href="http://vqpjggq4qlapatmoppm5lffrswh7fegmsj6ws6f55rep7ni62yvucwad.onion/" rel="noreferrer">🧅 Use Tor</a>.</p>
+      <p>The board is <a href="https://forum.monerotalks.org" class="board-link"><span class="board-link-text">Live</span> ↗</a> — <a class="mt-onion" href="http://vqpjggq4qlapatmoppm5lffrswh7fegmsj6ws6f55rep7ni62yvucwad.onion/" rel="noreferrer">🧅 Use Tor</a>.</p>
 
     <div class="xmr-panel" id="xmr-panel" aria-live="polite">
       <div class="top">
@@ -410,7 +437,7 @@
       </div>
       <div class="foot">
         <a class="mt-onion" href="http://vqpjggq4qlapatmoppm5lffrswh7fegmsj6ws6f55rep7ni62yvucwad.onion/" rel="noreferrer">🧅 Use Tor</a>
-        <a href="https://forum.monerotalks.org">Open board ↗</a>
+        <a href="https://forum.monerotalks.org">Open Board ↗</a>
       </div>
     </div>
 
@@ -436,10 +463,7 @@
   <footer>
     <div class="inner">
       <span class="note">MoneroTalks.org — independent, not affiliated with the Monero project or Monero Talk the podcast.</span>
-      <span class="links">
-        <a class="mt-onion" href="http://vqpjggq4qlapatmoppm5lffrswh7fegmsj6ws6f55rep7ni62yvucwad.onion/" rel="noreferrer">🧅 Use Tor</a>
-        <a class="law-btn" href="law.html">Forum law</a>
-      </span>
+      <a class="law-btn" href="law.html">Forum law</a>
     </div>
   </footer>
 
